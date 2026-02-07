@@ -1,0 +1,26 @@
+# Tasks
+
+- [x] Read and analyze "Python Coding Challenge (2).pdf" <!-- id: 0 -->
+- [x] Clone and analyze reference repository <!-- id: 1 -->
+- [x] Create Implementation Plan <!-- id: 2 -->
+- [x] Phase 1: Core Setup <!-- id: 3 -->
+  - [x] Create Django project structure
+  - [x] Define `Shipment` and `TrackingEvent` models
+  - [x] Define `UnifiedStatus` Enum
+  - [x] Implement `CourierBase` ABC
+- [x] Phase 2: Courier Implementations <!-- id: 4 -->
+  - [x] Implement `SMSACourier`
+  - [x] Implement `CourierFactory`
+  - [x] Implement Mock Mode
+- [x] Phase 3: API & Service Layer <!-- id: 5 -->
+  - [x] Implement `ShipmentService`
+  - [x] Create API Views (Create, Track, Cancel)
+  - [x] Add Swagger/OpenAPI documentation
+- [x] Phase 4: Verification <!-- id: 6 -->
+  - [x] Write unit tests
+  - [x] Verify with Docker
+- [x] Push to GitHub <!-- id: 7 -->
+- [x] Phase 5: Interview Preparation & Documentation <!-- id: 8 -->
+  - [x] Create Architecture Diagrams (Mermaid)
+  - [x] Create "How to Extend" Guide
+  - [x] Document Key Design Decisions & Trade-offs
