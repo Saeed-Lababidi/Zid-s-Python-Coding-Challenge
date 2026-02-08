@@ -102,17 +102,16 @@ The focus of this implementation was not just code, but architectural resilience
     ```
 
 ## Access Points
-🌐 API Server: http://localhost:8000
-📚 Swagger Documentation: http://localhost:8000/api/v1/docs
-🏥 Health Check: http://localhost:8000/api/v1/health
-📮 Postman Collection: [ZidShip-Courier-Framework.postman_collection.json](file:///c:/Users/Saeed/Desktop/Zid%20Assessment/ZidShip-Courier-Framework.postman_collection.json)
+* API Server: http://localhost:8000
+* Swagger Documentation: http://localhost:8000/api/v1/docs
+* Health Check: http://localhost:8000/api/v1/health
+* Postman Collection: [ZidShip-Courier-Framework.postman_collection.json](file:///c:/Users/Saeed/Desktop/Zid%20Assessment/ZidShip-Courier-Framework.postman_collection.json)
 
 ## 🧪 Testing the API
 
 ### Option 1: Postman Collection (Recommended)
 1. **Import Collection**: Import `ZidShip-Courier-Framework.postman_collection.json` into Postman
-2. **One-Click Testing**: Click "Run" on the "Complete Test Suite" folder
-3. **Watch Results**: All 12 comprehensive tests execute automatically!
+2. **One-Click Testing**: Click "Run" on any of tests available in the collection
 
 ### Option 2: Swagger UI Testing
 1. **Open Swagger**: Navigate to http://localhost:8000/api/v1/docs
@@ -121,8 +120,17 @@ The focus of this implementation was not just code, but architectural resilience
 
 ### Option 3: Health Check Testing
 
-# Basic health check
+#### Basic health check
 curl http://localhost:8000/api/v1/health/
 
-# Detailed health information
+#### Detailed health information
 curl http://localhost:8000/api/v1/health/detailed/
+<<<<<<< HEAD
+=======
+
+#### Readiness probe (Kubernetes)
+curl http://localhost:8000/api/v1/health/ready/
+
+#### Liveness probe (Kubernetes)
+curl http://localhost:8000/api/v1/health/live/
+>>>>>>> fd41eb06bee90594c3a974236d3dfe320b638751
