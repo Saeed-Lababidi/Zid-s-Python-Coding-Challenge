@@ -102,10 +102,10 @@ The focus of this implementation was not just code, but architectural resilience
     ```
 
 ## Access Points
-🌐 API Server: http://localhost:8000
-📚 Swagger Documentation: http://localhost:8000/api/v1/docs
-🏥 Health Check: http://localhost:8000/api/v1/health
-📮 Postman Collection: [ZidShip-Courier-Framework.postman_collection.json](file:///c:/Users/Saeed/Desktop/Zid%20Assessment/ZidShip-Courier-Framework.postman_collection.json)
+* API Server: http://localhost:8000
+* Swagger Documentation: http://localhost:8000/api/v1/docs
+* Health Check: http://localhost:8000/api/v1/health
+* Postman Collection: [ZidShip-Courier-Framework.postman_collection.json](file:///c:/Users/Saeed/Desktop/Zid%20Assessment/ZidShip-Courier-Framework.postman_collection.json)
 
 ## 🧪 Testing the API
 
@@ -121,14 +121,14 @@ The focus of this implementation was not just code, but architectural resilience
 
 ### Option 3: Health Check Testing
 
-# Basic health check
+#### Basic health check
 curl http://localhost:8000/api/v1/health/
 
-# Detailed health information
+#### Detailed health information
 curl http://localhost:8000/api/v1/health/detailed/
 
-# Readiness probe (Kubernetes)
+#### Readiness probe (Kubernetes)
 curl http://localhost:8000/api/v1/health/ready/
 
-# Liveness probe (Kubernetes)
+#### Liveness probe (Kubernetes)
 curl http://localhost:8000/api/v1/health/live/
