@@ -51,9 +51,6 @@ def health_check(request, subpath=None):
             "cache": "connected",
             "environment": "production" if not settings.DEBUG else "development",
         })
-    elif subpath in ["ready", "live"]:
-        # In a real app, logic would verify readiness/liveness
-        pass
         
     return Response(data)
 

@@ -49,48 +49,6 @@
                         }
                     },
                     "response": []
-                },
-                {
-                    "name": "Readiness Probe",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{base_url}}/api/v1/health/ready/",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "health",
-                                "ready",
-                                ""
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Liveness Probe",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{base_url}}/api/v1/health/live/",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "health",
-                                "live",
-                                ""
-                            ]
-                        }
-                    },
-                    "response": []
                 }
             ]
         },
