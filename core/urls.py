@@ -8,7 +8,9 @@ app_name = "core"
 
 urlpatterns = [
     # Health
+    # Health
     path("health/", views.health_check, name="health"),
+    path("health/<str:subpath>/", views.health_check, name="health-subpath"),
 
     # Couriers
     path("couriers/", views.list_couriers, name="list-couriers"),

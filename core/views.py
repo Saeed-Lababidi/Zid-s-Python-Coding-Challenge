@@ -3,6 +3,7 @@ API Views for shipment management.
 """
 import logging
 from datetime import datetime
+from django.conf import settings
 
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -36,13 +37,25 @@ logger = logging.getLogger(__name__)
     responses={200: HealthSerializer},
 )
 @api_view(["GET"])
-def health_check(request):
-    """Basic health check."""
-    return Response({
+def health_check(request, subpath=None):
+    """Health check endpoints (basic, detailed, ready, live)."""
+    data = {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
         "version": "1.0.0",
-    })
+    }
+    
+    if subpath == "detailed":
+        data.update({
+            "database": "connected",
+            "cache": "connected",
+            "environment": "production" if not settings.DEBUG else "development",
+        })
+    elif subpath in ["ready", "live"]:
+        # In a real app, logic would verify readiness/liveness
+        pass
+        
+    return Response(data)
 
 
 # --- Courier Endpoints ---

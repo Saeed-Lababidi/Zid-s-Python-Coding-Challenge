@@ -50,7 +50,7 @@ The following table maps the requirements from the Python Coding Challenge PDF t
 The focus of this implementation was not just code, but architectural resilience and scalability. Here is a breakdown of the key technical choices and the trade-offs involved.
 
 ### 1. Database Choice: PostgreSQL + JSONB
-**Decision**: We designed the schema for PostgreSQL to utilize `JSONField` (JSONB) for flexible courier data storage.
+**Decision**: I designed the schema for PostgreSQL to utilize `JSONField` (JSONB) for flexible courier data storage.
 *   **Implementation**: 
     *   **Development**: Runs on SQLite by default for zero-configuration setup. Django seamlessly handles the `JSONField` abstraction.
     *   **Production**: Configured to switch automatically to PostgreSQL if `DATABASE_URL` environment variable is set.
@@ -68,20 +68,20 @@ The focus of this implementation was not just code, but architectural resilience
     *   **Demonstration**: The `SimpleMessageBroker` demonstrates the *pattern* of offloading non-critical tasks (like sending email notifications or webhooks) to a background worker without blocking the main API thread.
 *   **Trade-off**: 
     *   **Cons**: If the web server restarts, the in-memory queue is lost. It doesn't scale across multiple servers.
-    *   **Production Plan**: In a real ZidShip deployment, we would replace `core/task_queue.py` with **Celery** backed by **Redis** or **RabbitMQ** to ensure persistence and horizontal scaling.
+    *   **Production Plan**: In a real ZidShip deployment, I would replace `core/task_queue.py` with **Celery** backed by **Redis** or **RabbitMQ** to ensure persistence and horizontal scaling.
 
 ### 3. Hexagonal Architecture (Ports & Adapters)
 **Decision**: Core business logic (`ShipmentService`) is completely isolated from the "Outside World" (API Views and Courier Implementations).
 *   **Why**: 
-    *   **Testability**: We can test the Service layer with a `MockCourier` without ever making a network call.
-    *   **Swap-ability**: We can switch from SMSA to Aramex, or from REST API to GraphQL, without changing a single line of the Core Service logic.
+    *   **Testability**: I can test the Service layer with a `MockCourier` without ever making a network call.
+    *   **Swap-ability**: I can switch from SMSA to Aramex, or from REST API to GraphQL, without changing a single line of the Core Service logic.
 
 ### 4. Synchronous vs. Asynchronous Courier Calls
 **Decision**: The `create_shipment` API calls the courier API synchronously (blocking).
 *   **Trade-off**:
     *   **Pros**: Immediate feedback to the user. They get the actual Waybill number instantly.
-    *   **Cons**: If SMSA is down or slow, our API hangs.
-    *   **Scaling Strategy**: For high throughput, we would move the courier call itself to the background queue, return a `request_id` to the user, and have them poll a status endpoint or receive a webhook (Async Implementation).
+    *   **Cons**: If SMSA is down or slow, my API hangs.
+    *   **Scaling Strategy**: For high throughput, I would move the courier call itself to the background queue, return a `request_id` to the user, and have them poll a status endpoint or receive a webhook (Async Implementation).
 
 ## Setup Instructions
 
@@ -101,96 +101,34 @@ The focus of this implementation was not just code, but architectural resilience
     python manage.py runserver
     ```
 
-## 🧪 Testing & Usage Guide
+## Access Points
+🌐 API Server: http://localhost:8000
+📚 Swagger Documentation: http://localhost:8000/api/v1/docs
+🏥 Health Check: http://localhost:8000/api/v1/health
+📮 Postman Collection: [ZidShip-Courier-Framework.postman_collection.json](file:///c:/Users/Saeed/Desktop/Zid%20Assessment/ZidShip-Courier-Framework.postman_collection.json)
 
-### 1. Automated Tests
+## 🧪 Testing the API
 
-**Run all Unit Tests (Core + SMSA):**
-```bash
-python manage.py test core
-```
+### Option 1: Postman Collection (Recommended)
+1. **Import Collection**: Import `ZidShip-Courier-Framework.postman_collection.json` into Postman
+2. **One-Click Testing**: Click "Run" on the "Complete Test Suite" folder
+3. **Watch Results**: All 12 comprehensive tests execute automatically!
 
-**Run only SMSA SOAP Integration Tests:**
-```bash
-python manage.py test core.tests_smsa
-```
+### Option 2: Swagger UI Testing
+1. **Open Swagger**: Navigate to http://localhost:8000/api/v1/docs
+2. **Interactive Testing**: Use the built-in API documentation to test all endpoints
+3. **Try It Out**: Click "Try it out" on any endpoint to test with sample data
 
-**Run Full Integration Scenario (Create -> Track -> Cancel):**
-```bash
-python manage.py test_integration
-```
+### Option 3: Health Check Testing
 
-### 2. Manual Testing (Functionality Examples)
+# Basic health check
+curl http://localhost:8000/api/v1/health/
 
-You can test the API using `curl` or Postman. Ensure the server is running: `python manage.py runserver`
+# Detailed health information
+curl http://localhost:8000/api/v1/health/detailed/
 
-#### A. List Available Couriers
-```bash
-curl -X GET http://localhost:8000/api/v1/couriers/
-```
+# Readiness probe (Kubernetes)
+curl http://localhost:8000/api/v1/health/ready/
 
-#### B. Create a Shipment
-```bash
-curl -X POST http://localhost:8000/api/v1/shipments/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "reference_number": "ORDER-1001",
-    "courier_provider": "MOCK", 
-    "sender": {
-      "name": "Zid Store",
-      "address_line1": "Riyadh Business Gate",
-      "city": "Riyadh",
-      "country": "SA",
-      "phone": "+966500000000"
-    },
-    "recipient": {
-      "name": "Saeed Customer",
-      "address_line1": "King Abdulaziz Road",
-      "city": "Jeddah",
-      "country": "SA",
-      "phone": "+966511111111"
-    },
-    "package": {
-      "weight": 2.5,
-      "description": "Mobile Phone",
-      "value": 3000
-    }
-  }'
-```
-*Response will contain a `waybill_number` (e.g., `MOCK...`). Use this for subsequent requests.*
-
-#### C. Track a Shipment
-```bash
-curl -X GET http://localhost:8000/api/v1/shipments/<WAYBILL_NUMBER>/track/
-```
-
-#### D. Print Label
-```bash
-curl -X GET http://localhost:8000/api/v1/shipments/<WAYBILL_NUMBER>/label/
-```
-
-#### E. Cancel Shipment
-```bash
-curl -X DELETE http://localhost:8000/api/v1/shipments/<WAYBILL_NUMBER>/cancel/ \
-  -H "Content-Type: application/json" \
-  -d '{"reason": "Customer changed mind"}'
-```
-
-### 3. Testing SMSA Integration specifically
-To test the real SMSA SOAP generation logic (without sending to the production server), we have created a dedicated test suite.
-
-**File**: `core/tests_smsa.py`
-
-**What it tests**:
-1.  **XML Construction**: Verifies that the internal DTOs are correctly converted into the SOAP XML format expected by SMSA.
-2.  **Response Parsing**: Verifies that the system can correctly parse a standard SMSA XML response.
-3.  **Error Handling**: Ensures that SOAP faults or API errors are caught and converted to standard `errors` list.
-
-**Run it:**
-```bash
-python manage.py test core.tests_smsa
-```
-
-## Documentation
-
-- **API Docs**: Visit `/api/v1/docs/` after starting the server.
+# Liveness probe (Kubernetes)
+curl http://localhost:8000/api/v1/health/live/
