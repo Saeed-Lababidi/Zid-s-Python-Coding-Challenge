@@ -136,10 +136,8 @@ class ShipmentService:
         TrackingEvent.objects.create(
             shipment=shipment,
             status=UnifiedStatus.CREATED.value,
-            raw_status="CREATED",
-            description="Shipment created successfully",
-            location=sender.city,
             timestamp=datetime.now(),
+            details="Shipment created in system"
         )
         
         # EXTENSION: Simulate Asynchronous Notification via Message Broker
