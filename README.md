@@ -50,13 +50,16 @@ The following table maps the requirements from the Python Coding Challenge PDF t
 The focus of this implementation was not just code, but architectural resilience and scalability. Here is a breakdown of the key technical choices and the trade-offs involved.
 
 ### 1. Database Choice: PostgreSQL + JSONB
-**Decision**: We used PostgreSQL and heavily utilized `JSONField` (JSONB) for storing shipment details (Sender, Recipient, Package).
+**Decision**: We designed the schema for PostgreSQL to utilize `JSONField` (JSONB) for flexible courier data storage.
+*   **Implementation**: 
+    *   **Development**: Runs on SQLite by default for zero-configuration setup. Django seamlessly handles the `JSONField` abstraction.
+    *   **Production**: Configured to switch automatically to PostgreSQL if `DATABASE_URL` environment variable is set.
 *   **Why**: 
-    *   **Flexibility**: Courier integrations are messy. SMSA has different fields than Aramex or DHL. Creating normalized tables for every possible courier field results in a complex Entity-Attribute-Value (EAV) mess or sparse tables with hundreds of null columns.
-    *   **Performance**: Postgres JSONB allows indexing specific keys inside the JSON (e.g., searching by `sender_phone` inside the JSON blob is fast).
+    *   **Flexibility**: Couriers have varied metadata. JSONB allows us to index specific fields (e.g., `sender_phone`) deep within the JSON structure without complex EAV schemas.
+    *   **Performance**: Postgres is the industry standard for this hybrid relational/document model.
 *   **Trade-off**: 
-    *   **Cons**: We lose some strict schema validation at the database level. 
-    *   **Mitigation**: We enforce strict validaton at the application level using **Pydantic DTOs** and **DRF Serializers** before data ever reaches the DB.
+    *   **Cons**: SQLite doesn't support concurrent writes well.
+    *   **Mitigation**: For the assessment, SQLite is sufficient. For production, simply set `DATABASE_URL` to point to a Postgres instance.
 
 ### 2. Message Broker: In-Memory vs. Redis/Celery
 **Decision**: Implemented a `SimpleMessageBroker` (`core/task_queue.py`) using Python threads for the assessment, but designed the system to swap this out for Celery/Redis in production.
