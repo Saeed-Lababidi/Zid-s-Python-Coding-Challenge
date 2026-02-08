@@ -125,12 +125,3 @@ curl http://localhost:8000/api/v1/health/
 
 #### Detailed health information
 curl http://localhost:8000/api/v1/health/detailed/
-<<<<<<< HEAD
-=======
-
-#### Readiness probe (Kubernetes)
-curl http://localhost:8000/api/v1/health/ready/
-
-#### Liveness probe (Kubernetes)
-curl http://localhost:8000/api/v1/health/live/
->>>>>>> fd41eb06bee90594c3a974236d3dfe320b638751
