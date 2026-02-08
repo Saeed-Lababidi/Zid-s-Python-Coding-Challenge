@@ -141,6 +141,18 @@ class ShipmentService:
             location=sender.city,
             timestamp=datetime.now(),
         )
+        
+        # EXTENSION: Simulate Asynchronous Notification via Message Broker
+        from .task_queue import async_task
+        
+        @async_task
+        def send_notification(waybill):
+            # Simulate sending email/webhook
+            import time
+            time.sleep(2) 
+            logger.info(f"NOTIFICATION SENT for shipment {waybill}")
+            
+        send_notification(shipment.waybill_number)
 
         logger.info(f"Shipment saved: {shipment.waybill_number}")
 

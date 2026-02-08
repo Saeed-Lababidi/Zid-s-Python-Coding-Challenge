@@ -45,17 +45,40 @@ The following table maps the requirements from the Python Coding Challenge PDF t
 | **Service Layer** | `ShipmentService` | `core/services.py` | Orchestrates validation, courier selection, api calls, and database persistence. |
 | **REST API** | Django REST Framework | `core/views.py` | API endpoints to expose shipment functionality. |
 
-## Trade-offs and Decisions
+## 🏗️ Architecture & Trade-off Analysis
 
-1.  **JSONB vs Normalized Tables**:
-    -   *Decision*: Use `JSONField` (JSONB in Postgres) for courier-specific data.
-    -   *Reason*: Couriers have highly variable metadata. Normalizing every field would lead to complex EAV patterns. JSONB offers flexibility.
-2.  **Synchronous API**:
-    -   *Decision*: Keep `create_shipment` synchronous for MVP.
-    -   *Reason*: Simplicity. In production, this should be offloaded to Celery tasks to handle high throughput.
-3.  **Code-based Configuration**:
-    -   *Decision*: Registry pattern in `CourierFactory`.
-    -   *Reason*: Easier to test and maintain than database-stored logic configuration.
+The focus of this implementation was not just code, but architectural resilience and scalability. Here is a breakdown of the key technical choices and the trade-offs involved.
+
+### 1. Database Choice: PostgreSQL + JSONB
+**Decision**: We used PostgreSQL and heavily utilized `JSONField` (JSONB) for storing shipment details (Sender, Recipient, Package).
+*   **Why**: 
+    *   **Flexibility**: Courier integrations are messy. SMSA has different fields than Aramex or DHL. Creating normalized tables for every possible courier field results in a complex Entity-Attribute-Value (EAV) mess or sparse tables with hundreds of null columns.
+    *   **Performance**: Postgres JSONB allows indexing specific keys inside the JSON (e.g., searching by `sender_phone` inside the JSON blob is fast).
+*   **Trade-off**: 
+    *   **Cons**: We lose some strict schema validation at the database level. 
+    *   **Mitigation**: We enforce strict validaton at the application level using **Pydantic DTOs** and **DRF Serializers** before data ever reaches the DB.
+
+### 2. Message Broker: In-Memory vs. Redis/Celery
+**Decision**: Implemented a `SimpleMessageBroker` (`core/task_queue.py`) using Python threads for the assessment, but designed the system to swap this out for Celery/Redis in production.
+*   **Why**: 
+    *   **Simplicity**: Setting up a full Redis instance for a coding assessment adds unnecessary complexity to the setup process.
+    *   **Demonstration**: The `SimpleMessageBroker` demonstrates the *pattern* of offloading non-critical tasks (like sending email notifications or webhooks) to a background worker without blocking the main API thread.
+*   **Trade-off**: 
+    *   **Cons**: If the web server restarts, the in-memory queue is lost. It doesn't scale across multiple servers.
+    *   **Production Plan**: In a real ZidShip deployment, we would replace `core/task_queue.py` with **Celery** backed by **Redis** or **RabbitMQ** to ensure persistence and horizontal scaling.
+
+### 3. Hexagonal Architecture (Ports & Adapters)
+**Decision**: Core business logic (`ShipmentService`) is completely isolated from the "Outside World" (API Views and Courier Implementations).
+*   **Why**: 
+    *   **Testability**: We can test the Service layer with a `MockCourier` without ever making a network call.
+    *   **Swap-ability**: We can switch from SMSA to Aramex, or from REST API to GraphQL, without changing a single line of the Core Service logic.
+
+### 4. Synchronous vs. Asynchronous Courier Calls
+**Decision**: The `create_shipment` API calls the courier API synchronously (blocking).
+*   **Trade-off**:
+    *   **Pros**: Immediate feedback to the user. They get the actual Waybill number instantly.
+    *   **Cons**: If SMSA is down or slow, our API hangs.
+    *   **Scaling Strategy**: For high throughput, we would move the courier call itself to the background queue, return a `request_id` to the user, and have them poll a status endpoint or receive a webhook (Async Implementation).
 
 ## Setup Instructions
 
