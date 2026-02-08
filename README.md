@@ -111,8 +111,7 @@ The focus of this implementation was not just code, but architectural resilience
 
 ### Option 1: Postman Collection (Recommended)
 1. **Import Collection**: Import `ZidShip-Courier-Framework.postman_collection.json` into Postman
-2. **One-Click Testing**: Click "Run" on the "Complete Test Suite" folder
-3. **Watch Results**: All 12 comprehensive tests execute automatically!
+2. **One-Click Testing**: Click "Run" on any of tests available in the collection
 
 ### Option 2: Swagger UI Testing
 1. **Open Swagger**: Navigate to http://localhost:8000/api/v1/docs
