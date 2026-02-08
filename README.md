@@ -191,4 +191,3 @@ python manage.py test core.tests_smsa
 ## Documentation
 
 - **API Docs**: Visit `/api/v1/docs/` after starting the server.
-- **Architecture**: See `architecture.md` for detailed diagrams and interview guide.
